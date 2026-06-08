@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teams | Cricket Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-brand">🏏 Cricket Dashboard</div>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/scoreboard">Scoreboard</a></li>
+            <li><a href="/series">Series</a></li>
+            <li><a href="/teams" class="active">Teams</a></li>
+            <li><a href="/search">Search</a></li>
+        </ul>
+    </nav>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <h1>🏆 ICC T20 World Cup 2024</h1>
+        <p>Final Teams — India vs South Africa</p>
+    </div>
+
+    <!-- TEAMS SECTION -->
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Final Squads</h2>
+            <span class="match-count"><%= teams.length %> teams</span>
+        </div>
+
+        <% if(teams.length === 0) { %>
+            <p class="no-data">No teams available at the moment.</p>
+        <% } else { %>
+            <div class="teams-wrapper">
+                <% teams.forEach(team => { %>
+                    <div class="team-section">
+
+                        <!-- TEAM HEADER -->
+                        <div class="team-header">
+                            <div class="team-header-info">
+                                <h2 class="team-title"><%= team.name %></h2>
+                                <p class="team-subtitle">ICC T20 World Cup 2024 Squad</p>
+                            </div>
+                            <div class="team-meta">
+                                <div class="team-meta-item">
+                                    <span class="meta-label">Captain</span>
+                                    <span class="meta-value"><%= team.captain %></span>
+                                </div>
+                                <div class="team-meta-item">
+                                    <span class="meta-label">Coach</span>
+                                    <span class="meta-value"><%= team.coach %></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PLAYERS GRID -->
+                        <div class="players-grid">
+                            <% team.players.forEach(player => { %>
+                                <a href="<%= player.playerId ? '/players/' + player.playerId : '#' %>" class="player-card">
+                                    <div class="player-avatar">
+                                        <%= player.name.charAt(0) %>
+                                    </div>
+                                    <div class="player-info">
+                                        <h4 class="player-name"><%= player.name %></h4>
+                                        <p class="player-role"><%= player.role || 'Player' %></p>
+                                    </div>
+                                    <span class="player-arrow">→</span>
+                                </a>
+                            <% }) %>
+                        </div>
+
+                    </div>
+                <% }) %>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p>Cricket Dashboard &copy; 2024 | Built with Node.js, Express & MongoDB</p>
+    </footer>
+
+</body>
+</html>
