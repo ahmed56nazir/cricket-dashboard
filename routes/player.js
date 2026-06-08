@@ -1,9 +1,13 @@
-const express = require('express');
-const router = express.Router();
-const player = require('../controllers/player');
+const express = require("express")
+const router = express.Router()
+const player = require('../controllers/player')
+const { validateSearch } = require("../middleware/validator")
 
-router.get('/players/:id', player.getPlayerDetail);
-router.get('/search', player.getSearch);
-router.post('/search', player.searchPlayer);
+router.route("/players/:id")
+    .get(player.getPlayerDetail)
 
-module.exports = router;
+router.route("/search")
+    .get(player.getSearch)
+    .post(validateSearch, player.searchPlayer)
+
+module.exports = router
