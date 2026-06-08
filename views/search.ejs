@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Player | Cricket Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-brand">🏏 Cricket Dashboard</div>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/scoreboard">Scoreboard</a></li>
+            <li><a href="/series">Series</a></li>
+            <li><a href="/teams">Teams</a></li>
+            <li><a href="/search" class="active">Search</a></li>
+        </ul>
+    </nav>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <h1>🔍 Search Player</h1>
+        <p>Find players from ICC T20 World Cup 2024 squads</p>
+    </div>
+
+    <div class="container">
+
+        <!-- SEARCH FORM -->
+        <div class="search-wrapper">
+            <form action="/search" method="POST" class="search-form">
+                <div class="search-input-group">
+                    <input
+                        type="text"
+                        name="query"
+                        placeholder="Search player by name e.g. Virat Kohli..."
+                        class="search-input"
+                        value="<%= typeof query !== 'undefined' ? query : '' %>"
+                        autocomplete="off"
+                    />
+                    <button type="submit" class="search-btn">Search</button>
+                </div>
+
+                <!-- VALIDATION ERROR -->
+                <% if(typeof error !== 'undefined' && error) { %>
+                    <p class="search-error">⚠️ <%= error %></p>
+                <% } %>
+            </form>
+        </div>
+
+        <!-- SEARCH RESULTS -->
+        <% if(typeof players !== 'undefined' && players.length > 0) { %>
+            <div class="section-header">
+                <h2 class="section-title">Search Results</h2>
+                <span class="match-count"><%= players.length %> player(s) found</span>
+            </div>
+
+            <div class="search-results-grid">
+                <% players.forEach(player => { %>
+                    <a href="/players/<%= player.playerId %>" class="search-player-card">
+
+                        <!-- AVATAR -->
+                        <div class="search-player-avatar">
+                            <% if(player.image) { %>
+                                <img src="<%= player.image %>" alt="<%= player.name %>">
+                            <% } else { %>
+                                <%= player.name.charAt(0) %>
+                            <% } %>
+                        </div>
+
+                        <!-- PLAYER INFO -->
+                        <div class="search-player-info">
+                            <h4 class="search-player-name"><%= player.name %></h4>
+                            <p class="search-player-country"><%= player.country %></p>
+                            <p class="search-player-role"><%= player.role %></p>
+                        </div>
+
+                        <!-- TEAM BADGE -->
+                        <div class="search-player-team">
+                            <span class="team-badge <%= player.teamName === 'India' ? 'badge-india' : 'badge-sa' %>">
+                                <%= player.teamName %>
+                            </span>
+                            <span class="view-profile">View Profile →</span>
+                        </div>
+
+                    </a>
+                <% }) %>
+            </div>
+
+        <% } else if(typeof query !== 'undefined' && query && (typeof players === 'undefined' || players.length === 0)) { %>
+
+            <!-- NO RESULTS -->
+            <div class="no-results">
+                <p>😔</p>
+                <h3>No players found for "<%= query %>"</h3>
+                <p>Try searching with a different name</p>
+            </div>
+
+        <% } else if(typeof query === 'undefined' || query === '') { %>
+
+            <!-- INITIAL STATE -->
+            <div class="search-initial">
+                <p>🏏</p>
+                <h3>Search for a Cricket Player</h3>
+                <p>Search by first name, last name or full name</p>
+                <div class="search-suggestions">
+                    <p class="suggestions-title">Try searching for:</p>
+                    <div class="suggestions-list">
+                        <span class="suggestion-tag">Virat Kohli</span>
+                        <span class="suggestion-tag">Rohit Sharma</span>
+                        <span class="suggestion-tag">Kagiso Rabada</span>
+                        <span class="suggestion-tag">Jasprit Bumrah</span>
+                        <span class="suggestion-tag">David Miller</span>
+                        <span class="suggestion-tag">Hardik Pandya</span>
+                    </div>
+                </div>
+            </div>
+
+        <% } %>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p>Cricket Dashboard &copy; 2024 | Built with Node.js, Express & MongoDB</p>
+    </footer>
+
+</body>
+</html>
