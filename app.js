@@ -14,6 +14,8 @@ app.use(express.json());
 
 app.use(express.static('public'));
 
+app.use(logger);
+
 connectDB(process.env.DB_URL);
 
 
