@@ -4,14 +4,14 @@ const axios = require("axios")
 
 dotenv.config()
 
-const Match = require("./models/match")
-const Series = require("./models/series")
-const Player = require("./models/player")
-const Team = require("./models/team")
+const Match = require("./models/Match")
+const Series = require("./models/Series")
+const Player = require("./models/Player")
+const Team = require("./models/Team")
 
-const API_KEY = process.env.CRICKET_API_KEY
+const CRICKET_API_KEY = process.env.CRICKET_API_KEY
+const ENTITY_SPORT_API = "ec471071441bb2ac538a0ff901abd249"
 
-// ICC T20 WORLD CUP 2024 FINAL SQUADS
 const indiaSquad = [
     "Rohit Sharma", "Virat Kohli", "Rishabh Pant",
     "Suryakumar Yadav", "Hardik Pandya", "Jasprit Bumrah",
@@ -28,10 +28,119 @@ const southAfricaSquad = [
     "Ryan Rickelton", "Ottneil Baartman", "Bjorn Fortuin"
 ]
 
+async function fetchMatches() {
+    try {
+        // Fetch completed matches
+        const completedResponse = await axios.get(
+            `https://rest.entitysport.com/v2/matches/?token=${ENTITY_SPORT_API}&status=2&per_page=20`
+        )
+
+        // Fetch upcoming matches
+        const upcomingResponse = await axios.get(
+            `https://rest.entitysport.com/v2/matches/?token=${ENTITY_SPORT_API}&status=1&per_page=10`
+        )
+
+        const completedMatches = completedResponse.data.response.items || []
+        const upcomingMatches = upcomingResponse.data.response.items || []
+
+        // Combine both
+        const allMatches = [...completedMatches, ...upcomingMatches]
+
+        if(allMatches.length === 0) {
+            console.log("No match data received from Entity Sport")
+            return
+        }
+
+        await Match.deleteMany()
+        console.log("Existing matches cleared..")
+
+        const filteredMatches = allMatches.filter(match => {
+            if(match.domestic === "1") return false
+            if(!match.title) return false
+            if(match.title.includes("Women")) return false
+            if(match.title.includes("U19")) return false
+            if(match.title.includes(" A ")) return false
+            return true
+        })
+
+        const matches = filteredMatches.map(match => ({
+            matchId: String(match.match_id),
+            title: match.title || "N/A",
+            matchType: match.format_str || "N/A",
+            status: match.status_str || "Upcoming",
+            venue: match.venue ? match.venue.name : "TBC",
+            date: match.date_start ? match.date_start.split(" ")[0] : "TBC",
+            teamA: {
+                name: match.teama ? match.teama.name : "",
+                score: match.teama ? match.teama.scores : "",
+                wickets: "",
+                overs: match.teama ? match.teama.overs : ""
+            },
+            teamB: {
+                name: match.teamb ? match.teamb.name : "",
+                score: match.teamb ? match.teamb.scores : "",
+                wickets: "",
+                overs: match.teamb ? match.teamb.overs : ""
+            },
+            result: match.result || match.status_note || "",
+            seriesName: match.competition ? match.competition.title : ""
+        }))
+
+        await Match.insertMany(matches)
+        console.log(`${matches.length} matches inserted successfully..`)
+
+    } catch(err) {
+        console.log("Error fetching matches:", err.message)
+    }
+}
+
+async function fetchSeries() {
+    try {
+        const response = await axios.get(
+            `https://rest.entitysport.com/v2/competitions/?token=${ENTITY_SPORT_API}&per_page=25`
+        )
+
+        const seriesData = response.data.response.items || []
+
+        if(seriesData.length === 0) {
+            console.log("No series data received from Entity Sport")
+            return
+        }
+
+        await Series.deleteMany()
+        console.log("Existing series cleared..")
+
+        const filteredSeries = seriesData.filter(s => {
+            if(!s.title) return false
+            if(s.title.includes("Women")) return false
+            if(s.title.includes("U19")) return false
+            if(s.title.includes(" A ")) return false
+            if(s.category !== "international") return false
+            return true
+        })
+
+        const series = filteredSeries.map(s => ({
+            seriesId: String(s.cid),
+            name: s.title,
+            startDate: s.datestart || "TBC",
+            endDate: s.dateend || "TBC",
+            totalMatches: parseInt(s.total_matches) || 0,
+            matchType: s.game_format || "mixed",
+            status: s.status || "upcoming"
+        }))
+
+        await Series.insertMany(series)
+        console.log(`${series.length} series inserted successfully..`)
+
+    } catch(err) {
+        console.log("Error fetching series:", err.message)
+    }
+}
+
 async function fetchPlayerData(name, teamName) {
     try {
         const searchResponse = await axios.get(
-            `https://api.cricapi.com/v1/players?apikey=${API_KEY}&offset=0&search=${name}`
+            `https://api.cricapi.com/v1/players?apikey=${CRICKET_API_KEY}&offset=0&search=${name}`
         )
 
         const searchResults = searchResponse.data.data
@@ -43,7 +152,7 @@ async function fetchPlayerData(name, teamName) {
         const playerId = searchResults[0].id
 
         const infoResponse = await axios.get(
-            `https://api.cricapi.com/v1/players_info?apikey=${API_KEY}&id=${playerId}`
+            `https://api.cricapi.com/v1/players_info?apikey=${CRICKET_API_KEY}&id=${playerId}`
         )
 
         const playerData = infoResponse.data.data
@@ -66,90 +175,9 @@ async function fetchPlayerData(name, teamName) {
             stats: playerData.stats || []
         }
 
-    }
-    catch(err) {
+    } catch(err) {
         console.log(`Error fetching player ${name}:`, err.message)
         return null
-    }
-}
-
-async function fetchMatches() {
-    try {
-        const response = await axios.get(
-            `https://api.cricapi.com/v1/matches?apikey=${API_KEY}&offset=0`
-        )
-
-        const matchesData = response.data.data
-        if(!matchesData) {
-            console.log("No match data received from API")
-            return
-        }
-
-        await Match.deleteMany()
-        console.log("Existing matches cleared..")
-
-        const matches = matchesData.map(match => ({
-            matchId: match.id,
-            title: match.name,
-            matchType: match.matchType,
-            status: match.status,
-            venue: match.venue,
-            date: match.date,
-            teamA: {
-                name: match.teams[0] || "",
-                score: "",
-                wickets: "",
-                overs: ""
-            },
-            teamB: {
-                name: match.teams[1] || "",
-                score: "",
-                wickets: "",
-                overs: ""
-            },
-            result: match.status,
-            seriesName: match.series_id
-        }))
-
-        await Match.insertMany(matches)
-        console.log(`${matches.length} matches inserted successfully..`)
-
-    }
-    catch(err) {
-        console.log("Error fetching matches:", err.message)
-    }
-}
-
-async function fetchSeries() {
-    try {
-        const response = await axios.get(
-            `https://api.cricapi.com/v1/series?apikey=${API_KEY}&offset=0`
-        )
-
-        const seriesData = response.data.data
-        if(!seriesData) {
-            console.log("No series data received from API")
-            return
-        }
-
-        await Series.deleteMany()
-        console.log("Existing series cleared..")
-
-        const series = seriesData.map(s => ({
-            seriesId: s.id,
-            name: s.name,
-            startDate: s.startDate,
-            endDate: s.endDate,
-            totalMatches: s.matches,
-            matchType: `ODI: ${s.odi} | T20: ${s.t20} | Test: ${s.test}`,
-            status: "Upcoming"
-        }))
-
-        await Series.insertMany(series)
-        console.log(`${series.length} series inserted successfully..`)
-
-    } catch(err) {
-        console.log("Error fetching series:", err.message)
     }
 }
 
@@ -175,7 +203,6 @@ async function fetchPlayers() {
                 await Player.create(player)
                 console.log(`Inserted: ${player.name}`)
             }
-            // Small delay to avoid hitting API rate limit
             await new Promise(resolve => setTimeout(resolve, 1000))
         }
 
@@ -222,7 +249,7 @@ async function fetchTeams() {
 
 async function fetchAll() {
     try {
-        await mongoose.connect(process.env.DB_URL)
+        await mongoose.connect(process.env.MONGO_URI)
         console.log("MongoDB Connected..")
 
         await fetchMatches()
