@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricket Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-brand">🏏 Cricket Dashboard</div>
+        <ul class="nav-links">
+            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/scoreboard">Scoreboard</a></li>
+            <li><a href="/series">Series</a></li>
+            <li><a href="/teams">Teams</a></li>
+            <li><a href="/search">Search</a></li>
+        </ul>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <div class="hero">
+        <div class="hero-content">
+            <p class="hero-eyebrow">🏆 Your Cricket Hub</p>
+            <h1 class="hero-title">Cricket Dashboard</h1>
+            <p class="hero-subtitle">Scores, Series, Teams and Players — all in one place</p>
+
+            <!-- SEARCH BAR -->
+            <form class="hero-search" action="/search" method="POST">
+                <input
+                    type="text"
+                    name="query"
+                    placeholder="Search for a player..."
+                    class="hero-search-input"
+                />
+                <button type="submit" class="hero-search-btn">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- NAVIGATION CARDS -->
+    <div class="container">
+        <div class="nav-cards-grid">
+            <a href="/scoreboard" class="nav-card">
+                <div class="nav-card-icon">🏏</div>
+                <h3>Matches</h3>
+                <p>Live scores and results</p>
+            </a>
+            <a href="/series" class="nav-card">
+                <div class="nav-card-icon">📅</div>
+                <h3>Series</h3>
+                <p>Upcoming and recent series</p>
+            </a>
+            <a href="/teams" class="nav-card">
+                <div class="nav-card-icon">🌍</div>
+                <h3>Teams</h3>
+                <p>ICC T20 World Cup squads</p>
+            </a>
+            <a href="/search" class="nav-card">
+                <div class="nav-card-icon">🔍</div>
+                <h3>Players</h3>
+                <p>Search and explore players</p>
+            </a>
+        </div>
+    </div>
+
+    <!-- RECENT MATCHES -->
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Recent & Upcoming Matches</h2>
+            <a href="/scoreboard" class="view-all">View All →</a>
+        </div>
+
+        <% if(matches.length === 0) { %>
+            <p class="no-data">No matches available at the moment.</p>
+        <% } else { %>
+            <div class="matches-grid">
+                <% matches.slice(0, 6).forEach(match => { %>
+                    <div class="match-card">
+                        <div class="card-top">
+                            <span class="badge-type"><%= match.matchType ? match.matchType.toUpperCase() : 'N/A' %></span>
+                            <span class="badge-status <%= match.status === 'Live' ? 'badge-live' : 'badge-upcoming' %>">
+                                <%= match.status === 'Live' ? '🔴 Live' : match.status %>
+                            </span>
+                        </div>
+                        <div class="teams-row">
+                            <div class="team-block">
+                                <span class="team-name"><%= match.teamA.name %></span>
+                                <% if(match.teamA.score) { %>
+                                    <span class="team-score"><%= match.teamA.score %> <small>(<%= match.teamA.overs %> ov)</small></span>
+                                <% } %>
+                            </div>
+                            <div class="vs-block">VS</div>
+                            <div class="team-block right">
+                                <span class="team-name"><%= match.teamB.name %></span>
+                                <% if(match.teamB.score) { %>
+                                    <span class="team-score"><%= match.teamB.score %> <small>(<%= match.teamB.overs %> ov)</small></span>
+                                <% } %>
+                            </div>
+                        </div>
+                        <div class="card-bottom">
+                            <span>📍 <%= match.venue %></span>
+                            <span>📅 <%= match.date %></span>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p>Cricket Dashboard &copy; 2024 | Built with Node.js, Express & MongoDB</p>
+    </footer>
+
+</body>
+</html>
