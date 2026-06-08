@@ -1,7 +1,7 @@
 const express = require("express")
 const router = express.Router()
 const player = require('../controllers/player')
-const { validateSearch } = require("../middleware/validator")
+const { validateSearch } = require("../middlewares/validator")
 
 router.route("/players/:id")
     .get(player.getPlayerDetail)

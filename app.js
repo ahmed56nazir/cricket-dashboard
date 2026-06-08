@@ -1,7 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 
-const logger = require("./middleware/logger")
+const logger = require("./middlewares/logger")
 
 const {connectDB} = require('./config/db');
 
