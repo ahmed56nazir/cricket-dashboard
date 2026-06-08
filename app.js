@@ -1,6 +1,8 @@
 const express = require('express');
 const dotenv = require('dotenv');
 
+const logger = require("./middleware/logger")
+
 const {connectDB} = require('./config/db');
 
 const app = express();
