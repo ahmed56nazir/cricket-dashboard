@@ -500,3 +500,158 @@ ul {
         grid-template-columns: 1fr;
     }
 }
+
+.teams-wrapper {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.team-section {
+    background: #ffffff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border: 1px solid #E5E7EB;
+    height: 100%;
+}
+
+.team-header {
+    background: linear-gradient(135deg, #1E3A5F 0%, #2563EB 100%);
+    padding: 28px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.team-title {
+    color: #ffffff;
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.team-subtitle {
+    color: #BFDBFE;
+    font-size: 13px;
+}
+
+.team-meta {
+    display: flex;
+    gap: 30px;
+}
+
+.team-meta-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.meta-label {
+    color: #93C5FD;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.meta-value {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1px;
+    background: #F3F4F6;
+    padding: 1px;
+}
+
+.player-card {
+    background: #ffffff;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: all 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+}
+
+.player-card:hover {
+    background: #EFF6FF;
+}
+
+.player-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563EB, #1E3A5F);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.player-info {
+    flex: 1;
+}
+
+.player-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1F2937;
+    margin-bottom: 2px;
+}
+
+.player-role {
+    font-size: 12px;
+    color: #6B7280;
+}
+
+.player-arrow {
+    color: #2563EB;
+    font-size: 16px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.player-card:hover .player-arrow {
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .team-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .team-meta {
+        gap: 20px;
+    }
+
+    .team-meta-item {
+        align-items: flex-start;
+    }
+
+    .players-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .series-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .teams-wrapper {
+        grid-template-columns: 1fr;
+    }
+}
