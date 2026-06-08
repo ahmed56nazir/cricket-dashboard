@@ -2,20 +2,21 @@ const Player = require("../models/player")
 
 async function getPlayerDetail(req, res) {
     try {
-        const player = await Player.findOne({playerId: req.params.id})
-        res.render("playerDetail", {player})
-    }
-    catch (err) {
+        const player = await Player.findOne({ playerId: req.params.id })
+        if(player) {
+            res.render("player", { player })
+        } else {
+            res.render("player", { player: null })
+        }
+    } catch(err) {
         res.json({ error: err.message })
     }
 }
 
 async function getSearch(req, res) {
     try {
-        const data = {players: [], query: ""};
-        res.render("search", data);
-    }
-    catch (err) {
+        res.render("search")
+    } catch(err) {
         res.json({ error: err.message })
     }
 }
